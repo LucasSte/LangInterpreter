@@ -185,6 +185,23 @@ struct infoexpressao {
     operando opnd;
 };
 
+typedef struct contexto contexto;
+struct contexto{
+    modhead moduloAtual;
+    quadrupla quadruplaAtual;
+    operando result;
+};
+contexto* contextoatual;
+
+typedef struct nohcontexto nohcontexto;
+struct nohcontexto {
+	contexto context;
+	nohcontexto *prox;
+};
+typedef nohcontexto* pilhacontexto;
+pilhacontexto pilhacontext;
+
+
 typedef struct infovariavel infovariavel;
 struct infovariavel {
     simbolo simb;
@@ -248,6 +265,13 @@ void DesempilharOpnd(pilhaoperando *P);
 operando TopoOpnd(pilhaoperando P);
 void InicPilhaOpnd(pilhaoperando *P);
 char VaziaOpnd(pilhaoperando P);
+
+void EmpilharContexto(contexto x, pilhacontexto *P);
+void DesempilharContexto(pilhacontexto *P);
+contexto TopoContexto(pilhacontexto P);
+void InicPilhaContexto(pilhacontexto *P);
+char VaziaContexto(pilhacontexto P);
+
 
 void ExecQuadCallop(quadrupla quad);
 
@@ -1897,8 +1921,9 @@ void InterpCodIntermed()
     printf("\n\nINTERPRETADOR:\n");
     codintermedaux = codintermed->prox;
     InicPilhaOpnd(&pilhaopnd);
+    InicPilhaContexto(&pilhacontext);
     InterpCodIntermedSubProgramas();
-    
+
 }
 
 void InterpCodIntermedSubProgramas()
@@ -1906,7 +1931,7 @@ void InterpCodIntermedSubProgramas()
 
     quadrupla quad, quadprox;
     char encerra;
-    
+    contexto ctx;
     encerra = FALSE;
     quad = codintermedaux->listquad->prox;
     while(!encerra)
@@ -1925,7 +1950,12 @@ void InterpCodIntermedSubProgramas()
                 EmpilharOpnd(quad->opnd1,&pilhaopnd);
                 break;
             case CALLOP:
+                printf("\n\nENTROU\n");
+                ctx = (contexto) { codintermedaux, quad->prox,opndidle};    
+                //contextoatual.quadruplaAtual = quad->prox; /*Proxima quadrupla do codigo*/
+                EmpilharContexto(ctx,&pilhacontext);
                 ExecQuadCallop(quad);
+                
                 break;
         }
         if(!encerra)
@@ -2004,39 +2034,72 @@ char VaziaOpnd (pilhaoperando P) {
 	else return 0; 
 }
 
+void EmpilharContexto (contexto x, pilhacontexto *P) {
+	nohcontexto *temp;
+	temp = *P;   
+	*P = (nohcontexto *) malloc (sizeof (nohcontexto));
+	(*P)->context = x; (*P)->prox = temp;
+}
+
+void DesempilharContexto (pilhacontexto *P) {
+	nohcontexto *temp;
+	if (! VaziaContexto (*P)) {
+		temp = *P;  *P = (*P)->prox; free (temp);
+	}
+	else  printf ("\n\tDelecao em pilha vazia\n");
+}
+
+contexto TopoContexto (pilhacontexto P) {
+	if (! VaziaContexto(P))  return P->context;
+	else  printf ("\n\tTopo de pilha vazia\n");
+}
+
+void InicPilhaContexto (pilhacontexto *P) { 
+	*P = NULL;
+}
+
+char VaziaContexto (pilhacontexto P) {
+	if  (P == NULL)  return 1;  
+	else return 0; 
+}
+
+
+
 void ExecQuadCallop(quadrupla quad){
     
     int i;
     operando opendAux;
     pilhaoperando pilhaopndaux;
     codintermedaux = codintermed->prox;
-
-    char *modname = quad->opnd1.atr.simb->cadeia;   
-
-    while(strcmp(modname,codintermedaux->modname->cadeia)!=0 && codintermedaux!=NULL){
-        codintermedaux = codintermedaux->prox;
-    }
-    
-    if(codintermedaux == NULL){
-        printf("\n Não encontrou o modulo com o nome: %s",modname);
+    if(VaziaContexto(pilhacontext)){
+        printf("\nSem contexto");
+        /*EmpilharContexto(codintermedaux,&pilhacontext);*/
     }
     else{
+        char *modname = quad->opnd1.atr.simb->cadeia;   
 
-        if(quad->opnd2.tipo!=IDLEOPND){
-
-            InicPilhaOpnd(&pilhaopndaux);
-            for(i=1; i<= quad->opnd2.atr.valint;i++){
-            EmpilharOpnd(TopoOpnd(pilhaopnd),&pilhaopndaux);
-                DesempilharOpnd(&pilhaopnd);
-            }
-
-            /*if(quad->result.tipo!=IDLEOPND){
-                
-            }*/
-
+        while(strcmp(modname,codintermedaux->modname->cadeia)!=0 && codintermedaux!=NULL){
+            codintermedaux = codintermedaux->prox;
         }
-        InterpCodIntermedSubProgramas();
+        
+        if(codintermedaux == NULL){
+            printf("\n Não encontrou o modulo com o nome: %s",modname);
+        }
+        else{
+
+            if(quad->opnd2.tipo!=IDLEOPND){
+
+                InicPilhaOpnd(&pilhaopndaux);
+                for(i=1; i<= quad->opnd2.atr.valint;i++){
+                    EmpilharOpnd(TopoOpnd(pilhaopnd),&pilhaopndaux);
+                    DesempilharOpnd(&pilhaopnd);
+                }
+
+            }
+            InterpCodIntermedSubProgramas();
+        }
+        contexto ctx = TopoContexto(pilhacontext);
+        codintermedaux = ctx.moduloAtual;
+        DesempilharContexto(&pilhacontext);
     }
-    codintermedaux = codintermed->prox;   
-    
 }
