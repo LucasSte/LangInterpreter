@@ -191,7 +191,6 @@ struct contexto{
     quadrupla quadruplaAtual;
     operando result;
 };
-contexto* contextoatual;
 
 typedef struct nohcontexto nohcontexto;
 struct nohcontexto {
