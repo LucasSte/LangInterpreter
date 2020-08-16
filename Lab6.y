@@ -254,6 +254,10 @@ int cmdAtual;
 int subsc = 0;
 int countParams =0;
 simbolo atual;
+
+
+void InterpCodIntermed(void);
+void AlocaVariaveis(quadrupla quad);
 %}
 %union {
     char cadeia[50];
@@ -324,7 +328,7 @@ Prog       :    PROGRAMA {InicTabSimb();printf("%s ", $1); InicCodIntermed(); pi
                 escopoAtual = InsereSimb(scope, NOTVAR, SCOPE, NULL);
                 global = escopoAtual;
                 simbolo simb = InsereSimb($3,IDPROG,NOTVAR, escopoAtual);
-                InicCodIntermedMod(simb);
+                InicCodIntermedMod(escopoAtual);
                 opnd1.tipo = MODOPND;
                 opnd1.atr.modulo = modcorrente;
                 GeraQuadrupla(OPENMOD, opnd1, opndidle, opndidle);
@@ -347,6 +351,7 @@ Prog       :    PROGRAMA {InicTabSimb();printf("%s ", $1); InicCodIntermed(); pi
                 ImprimeNaoUsados();
                 ImprimeTabSimb();
                 ImprimeQuadruplas();
+                InterpCodIntermed();
                 }
                 ;
 
@@ -392,7 +397,7 @@ Elem        :   ID {
                     atual = simb;
                 }
                 Dims {
-                    if(atual !=NULL)
+                    if(atual != NULL)
                     {
                         atual->ndims = subsc;
                     }
@@ -455,7 +460,7 @@ CabFunc     :   FUNCAO {printf("%s ", $1);}
                         escopoAtual = InsereSimb($4,IDFUNC,tipocorrente, escopoAtual);
                         InicCodIntermedMod(escopoAtual);
                         opnd1.tipo = FUNCPND;
-                        opnd1.atr.simb = escopoAtual;
+                        opnd1.atr.modulo = modcorrente;
                         GeraQuadrupla(OPENMOD,opnd1,opndidle,opndidle);
                     } 
                         
@@ -473,7 +478,7 @@ CabProc     :   PROCEDIMENTO {printf("%s ", $1);}
                             escopoAtual = InsereSimb($3,IDPROC,NOTVAR, escopoAtual);
                             InicCodIntermedMod(escopoAtual);
                             opnd1.tipo = PROCPND;
-                            opnd1.atr.simb = escopoAtual;
+                            opnd1.atr.modulo = modcorrente;
                             GeraQuadrupla(OPENMOD,opnd1,opndidle,opndidle);
                         } 
                     }
@@ -1544,7 +1549,6 @@ void ImprimeTabSimb(){
                 {
                     printf("  -  |  -  |\n");
                 }
-
 			}
 		}
     printf("----------------------------------------------------------------------------------------------\n");
@@ -1781,12 +1785,21 @@ void ImprimeQuadruplas()
 				case LOGICOPND: printf (", %d", q->opnd1.atr.vallogic); break;
 				case CADOPND: printf (", %s", q->opnd1.atr.valcad); break;
 				case ROTOPND: printf (", %d", q->opnd1.atr.rotulo->num); break;
-				case MODOPND: printf(", %s", q->opnd1.atr.modulo->modname->cadeia);
+				case MODOPND: 
+                    printf(", %s", q->opnd1.atr.modulo->modname->cadeia);
 					break;
                 case FUNCPND:
                 case PROCPND:
-                    printf(", %s", q->opnd1.atr.simb->cadeia);
-                    break;
+                    switch(q->oper)
+                    {
+                        case OPENMOD:
+                            printf(", %s", q->opnd1.atr.modulo->modname->cadeia);
+                        break;
+                        case CALLOP:
+                            printf(", %s", q->opnd1.atr.simb->cadeia);
+                            break;
+                    }
+                break;
 			}
             printf (")");
 			printf (", (%s", nometipoopndquad[q->opnd2.tipo]);
@@ -1803,7 +1816,15 @@ void ImprimeQuadruplas()
 					break;
                 case FUNCPND:
                 case PROCPND:
-                    printf(", %s", q->opnd2.atr.simb->cadeia);
+                     switch(q->oper)
+                    {
+                        case OPENMOD:
+                            printf(", %s", q->opnd1.atr.modulo->modname->cadeia);
+                        break;
+                        case CALLOP:
+                            printf(", %s", q->opnd1.atr.simb->cadeia);
+                            break;
+                    }
                     break;
 			}
             printf (")");
@@ -1857,5 +1878,74 @@ void TrataLeitura(infovariavel var)
         GeraQuadrupla(OPLER, opnd2, opndidle, opndidle);
         GeraQuadrupla(ATRIBPONT, opnd1, opndidle, var.opnd);
         countParams=0;
+    }
+}
+
+/* Funções do Interpretador*/
+
+void InterpCodIntermed()
+{
+    quadrupla quad, quadprox;
+    char encerra;
+    printf("\n\nINTERPRETADOR:\n");
+    encerra = FALSE;
+    quad = codintermed->prox->listquad->prox;
+    while(!encerra)
+    {
+        printf("\n%4d)%s", quad->num, nomeoperquad[quad->oper]);
+        quadprox = quad->prox;
+        switch(quad->oper)
+        {
+            case OPEXIT:
+                encerra = TRUE;
+                break;
+            case OPENMOD:
+                AlocaVariaveis(quad);
+                break;
+        }
+        if(!encerra)
+            quad = quadprox;
+    }
+    printf("\n");
+}
+
+void AlocaVariaveis(quadrupla quad)
+{
+    simbolo s;
+    int nelemaloc, i, j;
+    printf("\n\tAlocando as variavels:");
+    for(i=0; i < NCLASSHASH; i++)
+    {
+        if(tabsimb[i])
+        {
+            for(s = tabsimb[i]; s != NULL; s = s->prox)
+            {
+                if(s->escopo == quad->opnd1.atr.modulo->modname && s->tid == IDVAR)
+                {
+                    nelemaloc = 1;
+                    if(s->ndims > 0)
+                        for(j=1; j<= s->ndims; j++)
+                        {
+                            nelemaloc *= s->dims[j];
+                        }
+                    switch(s->tvar)
+                    {
+                        case INTEGER:
+                            s->valint = malloc(nelemaloc*sizeof(int));
+                            break;
+                        case FLOAT:
+                            s->valfloat = malloc(nelemaloc*sizeof(float));
+                            break;
+                        case CHAR:
+                            s->valfloat = malloc(nelemaloc*sizeof(char));
+                            break;
+                        case LOGICAL:
+                            s->vallogic = malloc(nelemaloc * sizeof(char));
+                            break;
+                    }
+                    printf("\n\t\t\t%s: %d elemento(s) alocado(s)", s->cadeia, nelemaloc);
+                }
+            }
+        }
     }
 }
