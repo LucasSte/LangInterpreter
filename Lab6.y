@@ -2664,6 +2664,7 @@ void ExecQuadWrite(quadrupla quad)
                 }
                 break; 
         }
+        printf(" ");
     }
     printf("\n");
 }
