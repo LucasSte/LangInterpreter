@@ -283,6 +283,7 @@ void ExecQuadLE(quadrupla quad);
 void ExecQuadGT(quadrupla quad);
 void ExecQuadGE(quadrupla quad);
 void ExecQuadWrite(quadrupla quad);
+void ExecQuadRead(quadrupla quad);
 
 
 int tipocorrente;
@@ -1939,12 +1940,12 @@ void TrataLeitura(infovariavel var)
 
 void InterpCodIntermed()
 {
+    finput = fopen("entrada.txt", "r");
     printf("\n\nINTERPRETADOR:\n");
     codintermedaux = codintermed->prox;
     InicPilhaOpnd(&pilhaopnd);
     InicPilhaContexto(&pilhacontext);
     InterpCodIntermedSubProgramas();
-
 }
 
 void InterpCodIntermedSubProgramas()
@@ -2045,7 +2046,9 @@ void InterpCodIntermedSubProgramas()
                 ExecQuadWrite(quad);
                 break;
 
-
+            case OPLER:
+                ExecQuadRead(quad);
+                break;
         }
         if(!encerra)
             quad = quadprox;
@@ -2081,7 +2084,7 @@ void AlocaVariaveis(quadrupla quad)
                             s->valfloat = malloc(nelemaloc*sizeof(float));
                             break;
                         case CHAR:
-                            s->valfloat = malloc(nelemaloc*sizeof(char));
+                            s->valchar = malloc(nelemaloc*sizeof(char));
                             break;
                         case LOGICAL:
                             s->vallogic = malloc(nelemaloc * sizeof(char));
@@ -2696,5 +2699,45 @@ void ImprimeCadeia(char * cadeia)
                 state = CHARACTER;
                 break;
         }
+    }
+}
+
+void ExecQuadRead(quadrupla quad)
+{
+    int i;
+    operando opndaux;
+    pilhaoperando pilhaopndaux;
+
+    printf("\n\t\tLendo: \n");
+    InicPilhaOpnd(&pilhaopndaux);
+    for(i=1; i<=quad->opnd1.atr.valint; i++)
+    {
+        EmpilharOpnd(TopoOpnd(pilhaopnd), &pilhaopndaux);
+        DesempilharOpnd(&pilhaopnd);
+    }
+    for(i=1; i<=quad->opnd1.atr.valint; i++)
+    {
+        opndaux = TopoOpnd(pilhaopndaux);
+        DesempilharOpnd(&pilhaopndaux);
+        switch(opndaux.atr.simb->tvar)
+        {
+            case INTEGER:
+                fscanf(finput, "%d ", opndaux.atr.simb->valint);
+                printf("\t\tLido %d", *(opndaux.atr.simb->valint));
+                break;
+            case FLOAT:
+                fscanf(finput, "%g ", opndaux.atr.simb->valfloat);
+                printf("\t\tLido %g", *(opndaux.atr.simb->valfloat));
+                break;
+            case LOGICAL:
+                fscanf(finput, "%d ", opndaux.atr.simb->vallogic);
+                printf("\t\tLido %d",*(opndaux.atr.simb->vallogic));
+                break;
+            case CHAR:
+                fscanf(finput, "%c ", opndaux.atr.simb->valchar);
+                printf("\t\tLido %c", *(opndaux.atr.simb->valchar));
+                break;   
+        }
+        printf("\n");
     }
 }
