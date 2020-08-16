@@ -1934,6 +1934,7 @@ void InterpCodIntermedSubProgramas()
     contexto ctx;
     encerra = FALSE;
     quad = codintermedaux->listquad->prox;
+    
     while(!encerra)
     {
         printf("\n%4d)%s", quad->num, nomeoperquad[quad->oper]);
@@ -1950,13 +1951,17 @@ void InterpCodIntermedSubProgramas()
                 EmpilharOpnd(quad->opnd1,&pilhaopnd);
                 break;
             case CALLOP:
-                printf("\n\nENTROU\n");
-                ctx = (contexto) { codintermedaux, quad->prox,opndidle};    
-                //contextoatual.quadruplaAtual = quad->prox; /*Proxima quadrupla do codigo*/
+                ctx = (contexto){codintermedaux, quad ,opndidle};    
                 EmpilharContexto(ctx,&pilhacontext);
                 ExecQuadCallop(quad);
-                
+                ctx = TopoContexto(pilhacontext);
+                codintermedaux = ctx.moduloAtual;
+                quad = ctx.quadruplaAtual;
+                DesempilharContexto(&pilhacontext);
                 break;
+            
+            case OPRETURN:
+                encerra = TRUE;
         }
         if(!encerra)
             quad = quadprox;
@@ -2066,14 +2071,12 @@ char VaziaContexto (pilhacontexto P) {
 
 
 void ExecQuadCallop(quadrupla quad){
-    
     int i;
     operando opendAux;
     pilhaoperando pilhaopndaux;
     codintermedaux = codintermed->prox;
     if(VaziaContexto(pilhacontext)){
-        printf("\nSem contexto");
-        /*EmpilharContexto(codintermedaux,&pilhacontext);*/
+        printf("\nErro : Sem contexto durante execução de ExecQuadCallop");
     }
     else{
         char *modname = quad->opnd1.atr.simb->cadeia;   
@@ -2098,8 +2101,5 @@ void ExecQuadCallop(quadrupla quad){
             }
             InterpCodIntermedSubProgramas();
         }
-        contexto ctx = TopoContexto(pilhacontext);
-        codintermedaux = ctx.moduloAtual;
-        DesempilharContexto(&pilhacontext);
     }
 }
