@@ -1238,7 +1238,7 @@ Fator       :   Variavel {
                     printf("%s", $1); 
                     $$.tipo = CHAR;
                     $$.opnd.tipo = CHAROPND;
-                    $$.opnd.atr.valchar = $1[0];
+                    $$.opnd.atr.valchar = $1[1];
                     }
             |   VERDADE {
                     printf("%s", $1); 
