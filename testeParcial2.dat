@@ -1,0 +1,18 @@
+programa MatrizTransposta {{{
+
+var {
+    int (A[10,10], n)
+}
+
+principal
+var {
+    logic(l) carac(c) real(r) int(i)
+}
+comandos {
+
+    ler(r, l, c, i);
+    escrever(r, l, c, i);    
+
+
+}
+}}}
