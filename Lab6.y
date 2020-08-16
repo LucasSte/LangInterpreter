@@ -196,7 +196,7 @@ simbolo moduloChamado = NULL;
 pontelemlistsimb paramAtual = NULL;
 simbolo global;
 quadrupla quadcorrente, quadaux;
-modhead codintermed, modcorrente;
+modhead codintermed, modcorrente,codintermedaux;
 int oper, numquadcorrente;
 operando opnd1, opnd2, result, opndaux;
 int numtemp;
@@ -243,6 +243,14 @@ simbolo NovaTemp(int tip);
 void RenumQuadruplas(quadrupla quad1, quadrupla quad2);
 void TrataLeitura(infovariavel var);
 
+void EmpilharOpnd(operando x, pilhaoperando *P);
+void DesempilharOpnd(pilhaoperando *P);
+operando TopoOpnd(pilhaoperando P);
+void InicPilhaOpnd(pilhaoperando *P);
+char VaziaOpnd(pilhaoperando P);
+
+void ExecQuadCallop(quadrupla quad);
+
 int tipocorrente;
 int tab = 0;
 int newLines = 0;
@@ -257,6 +265,7 @@ simbolo atual;
 
 
 void InterpCodIntermed(void);
+void InterpCodIntermedSubProgramas(void);
 void AlocaVariaveis(quadrupla quad);
 %}
 %union {
@@ -1721,7 +1730,7 @@ int Desempilha()
 /*Funcoes para o codigo intermediario */
 
 void InicCodIntermed () {
-	modcorrente = codintermed = malloc (sizeof (celmodhead));
+    modcorrente = codintermed = malloc (sizeof (celmodhead));
     modcorrente->listquad = NULL;
 	modcorrente->prox = NULL;
 }
@@ -1885,11 +1894,21 @@ void TrataLeitura(infovariavel var)
 
 void InterpCodIntermed()
 {
+    printf("\n\nINTERPRETADOR:\n");
+    codintermedaux = codintermed->prox;
+    InicPilhaOpnd(&pilhaopnd);
+    InterpCodIntermedSubProgramas();
+    
+}
+
+void InterpCodIntermedSubProgramas()
+{
+
     quadrupla quad, quadprox;
     char encerra;
-    printf("\n\nINTERPRETADOR:\n");
+    
     encerra = FALSE;
-    quad = codintermed->prox->listquad->prox;
+    quad = codintermedaux->listquad->prox;
     while(!encerra)
     {
         printf("\n%4d)%s", quad->num, nomeoperquad[quad->oper]);
@@ -1902,6 +1921,12 @@ void InterpCodIntermed()
             case OPENMOD:
                 AlocaVariaveis(quad);
                 break;
+            case PARAM:
+                EmpilharOpnd(quad->opnd1,&pilhaopnd);
+                break;
+            case CALLOP:
+                ExecQuadCallop(quad);
+                break;
         }
         if(!encerra)
             quad = quadprox;
@@ -1913,7 +1938,7 @@ void AlocaVariaveis(quadrupla quad)
 {
     simbolo s;
     int nelemaloc, i, j;
-    printf("\n\tAlocando as variavels:");
+    printf("\n\tAlocando as variaveis:");
     for(i=0; i < NCLASSHASH; i++)
     {
         if(tabsimb[i])
@@ -1948,4 +1973,70 @@ void AlocaVariaveis(quadrupla quad)
             }
         }
     }
+}
+
+void EmpilharOpnd (operando x, pilhaoperando *P) {
+	nohopnd *temp;
+	temp = *P;   
+	*P = (nohopnd *) malloc (sizeof (nohopnd));
+	(*P)->opnd = x; (*P)->prox = temp;
+}
+
+void DesempilharOpnd (pilhaoperando *P) {
+	nohopnd *temp;
+	if (! VaziaOpnd (*P)) {
+		temp = *P;  *P = (*P)->prox; free (temp);
+	}
+	else  printf ("\n\tDelecao em pilha vazia\n");
+}
+
+operando TopoOpnd (pilhaoperando P) {
+	if (! VaziaOpnd (P))  return P->opnd;
+	else  printf ("\n\tTopo de pilha vazia\n");
+}
+
+void InicPilhaOpnd (pilhaoperando *P) { 
+	*P = NULL;
+}
+
+char VaziaOpnd (pilhaoperando P) {
+	if  (P == NULL)  return 1;  
+	else return 0; 
+}
+
+void ExecQuadCallop(quadrupla quad){
+    
+    int i;
+    operando opendAux;
+    pilhaoperando pilhaopndaux;
+    codintermedaux = codintermed->prox;
+
+    char *modname = quad->opnd1.atr.simb->cadeia;   
+
+    while(strcmp(modname,codintermedaux->modname->cadeia)!=0 && codintermedaux!=NULL){
+        codintermedaux = codintermedaux->prox;
+    }
+    
+    if(codintermedaux == NULL){
+        printf("\n Não encontrou o modulo com o nome: %s",modname);
+    }
+    else{
+
+        if(quad->opnd2.tipo!=IDLEOPND){
+
+            InicPilhaOpnd(&pilhaopndaux);
+            for(i=1; i<= quad->opnd2.atr.valint;i++){
+            EmpilharOpnd(TopoOpnd(pilhaopnd),&pilhaopndaux);
+                DesempilharOpnd(&pilhaopnd);
+            }
+
+            /*if(quad->result.tipo!=IDLEOPND){
+                
+            }*/
+
+        }
+        InterpCodIntermedSubProgramas();
+    }
+    codintermedaux = codintermed->prox;   
+    
 }
