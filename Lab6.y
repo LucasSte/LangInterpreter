@@ -90,7 +90,7 @@
 
 char *nometipid[6]  =  {"", "IDPROG", "IDVAR","IDFUNC","IDPROC", "SCOPE"};
 char *nometipvar[9] = {"NOTVAR","CHAR","INTEGER","FLOAT","LOGICAL", "PTRCHAR", "PTRINT", "PTRFLOAT", "PTRLOG"};
-char *nomeoperquad[31] = {"",
+char *nomeoperquad[32] = {"",
     "OPOR", "OPAND", "OPNOT", "OPLT", "OPLE", "OPGT", "OPGE", "OPMAIS", "OPMENOS", 
     "OPVEZES", "OPDIV", "OPMODULO", "OPNEG", "OPATRIB", "PARAM", "CALLOP", 
     "OPENMOD", "OPRETURN", "OPREAD", "OPWRITE", "OPJUMP", "OPJF", "OPEXIT",
@@ -282,6 +282,7 @@ void ExecQuadLT(quadrupla quad);
 void ExecQuadLE(quadrupla quad);
 void ExecQuadGT(quadrupla quad);
 void ExecQuadGE(quadrupla quad);
+void ExecQuadWrite(quadrupla quad);
 
 
 int tipocorrente;
@@ -300,6 +301,7 @@ simbolo atual;
 void InterpCodIntermed(void);
 void InterpCodIntermedSubProgramas(void);
 void AlocaVariaveis(quadrupla quad);
+void ImprimeCadeia(char * cadeia);
 %}
 %union {
     char cadeia[50];
@@ -828,6 +830,7 @@ ElemEscr    :   CADEIA  {
                     int len = strlen($1);
                     opnd1.atr.valcad = (char *) malloc(sizeof(char) * len);
                     memcpy(opnd1.atr.valcad, &$1[1], len-2);
+                    opnd1.atr.valcad[len-2]= '\0';
                     GeraQuadrupla(PARAM, opnd1, opndidle, opndidle);
                     countParams++;
                 }
@@ -2038,6 +2041,10 @@ void InterpCodIntermedSubProgramas()
                 ExecQuadLE(quad);
                 break;
 
+            case OPWRITE:
+                ExecQuadWrite(quad);
+                break;
+
 
         }
         if(!encerra)
@@ -2575,7 +2582,7 @@ void ExecQuadCallop(quadrupla quad){
         }
         
         if(codintermedaux == NULL){
-            printf("\n Não encontrou o modulo com o nome: %s",modname);
+            printf("\n Não se encontrou o modulo com o nome: %s",modname);
         }
         else{
 
@@ -2589,6 +2596,105 @@ void ExecQuadCallop(quadrupla quad){
 
             }
             InterpCodIntermedSubProgramas();
+        }
+    }
+}
+
+void ExecQuadWrite(quadrupla quad)
+{
+    int i;
+    operando opndaux;
+    pilhaoperando pilhaopndaux;
+
+    printf("\n\t\tEscrevendo: \n\n");
+    InicPilhaOpnd(&pilhaopndaux);
+    for(i = 1; i<=quad->opnd1.atr.valint; i++)
+    {
+        EmpilharOpnd(TopoOpnd(pilhaopnd), &pilhaopndaux);
+        DesempilharOpnd(&pilhaopnd);
+    }
+    
+    printf("\t\t");
+
+    for(i=1; i<=quad->opnd1.atr.valint; i++)
+    {
+        opndaux = TopoOpnd(pilhaopndaux);
+        DesempilharOpnd(&pilhaopndaux);
+        switch(opndaux.tipo)
+        {
+            case INTOPND:
+                printf("%d", opndaux.atr.valint);
+                break;
+            case REALOPND:
+                printf("%g", opndaux.atr.valfloat);
+                break;
+            case CHAROPND:
+                printf("%c", opndaux.atr.valchar);
+                break;
+            case LOGICOPND:
+                if(opndaux.atr.vallogic == 1)
+                    printf("VERDADE");
+                else
+                    printf("FALSO");
+                break;
+            case CADOPND:
+                ImprimeCadeia(opndaux.atr.valcad);
+                break;
+            case VAROPND:
+                switch(opndaux.atr.simb->tvar)
+                {
+                    case INTEGER:
+                        printf("%d", *(opndaux.atr.simb->valint));
+                        break;
+                    case FLOAT:
+                        printf("%g", *(opndaux.atr.simb->valfloat));
+                        break;
+                    case LOGICAL:
+                        if(*(opndaux.atr.simb->vallogic)==1)
+                            printf("VERDADE");
+                        else
+                            printf("FALSO");
+                        break;
+                    case CHAR:
+                        printf("%c", *(opndaux.atr.simb->valchar));
+                        break;
+                }
+                break; 
+        }
+    }
+    printf("\n");
+}
+
+void ImprimeCadeia(char * cadeia)
+{
+    int len = strlen(cadeia);
+    enum {CHARACTER, ESCAPE} state = CHARACTER;
+    int i;
+    for(i=0; i<len; i++)
+    {
+        switch(state)
+        {
+            case CHARACTER:
+                if(cadeia[i] == '\\') {
+                    state = ESCAPE;
+                }
+                else
+                {
+                    printf("%c", cadeia[i]);
+                }
+                break;
+            case ESCAPE:
+                switch(cadeia[i])
+                {
+                    case 'n':
+                        printf("\n");
+                        break;
+                    case 't':
+                        printf("\t");
+                        break;
+                }
+                state = CHARACTER;
+                break;
         }
     }
 }
