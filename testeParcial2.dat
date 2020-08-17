@@ -11,6 +11,23 @@ var {
 comandos {
 
     ler(r, l, c, i);
+    i = 2;
+    i = (i*i+i);
+    
+    l = !verdade;
+
+    se((l && verdade)){
+        r = (r - 1.5)*i*i/5.55;
+        /*r = 2;*/
+    }
+    
+    senao r = 10.123;
+    
+    /*se(l){
+        l = FALSO;
+    }*/
+    i = 351 % 2;
+    
     escrever(r, l, c, i);    
 
 
