@@ -2208,21 +2208,31 @@ void ExecQuadDif (quadrupla quad) {
 }
 
 void ExecQuadNEG (quadrupla quad) {
-	int tipo1, valint1;
-	
+
     switch (quad->opnd1.tipo) {
-		case LOGICOPND:
-            tipo1 = INTOPND; valint1 = quad->opnd1.atr.vallogic;break;
-		case VAROPND:
-			switch (quad->opnd1.atr.simb->tvar) {
-                case LOGICAL: tipo1 = INTOPND;
-                    valint1 = *(quad->opnd1.atr.simb->vallogic);
+		case INTOPND:
+            *(quad->result.atr.simb->valint) = -quad->opnd1.atr.valint;
+            break;
+        case CHAROPND:
+            *(quad->result.atr.simb->valchar) = -quad->opnd1.atr.valchar;
+            break;
+        case REALOPND:
+            *(quad->result.atr.simb->valfloat) = -quad->opnd1.atr.valfloat;
+            break;
+        case VAROPND:
+            switch (quad->opnd1.atr.simb->tvar)
+            {
+                case INTEGER:
+                    *(quad->result.atr.simb->valint) = -(*(quad->opnd1.atr.simb->valint));
                     break;
-			}
-			break;
+                case CHAR:
+                    *(quad->result.atr.simb->valchar) = -(*(quad->opnd1.atr.simb->valchar));
+                    break;
+                case FLOAT:
+                    *(quad->result.atr.simb->valfloat) = -(*(quad->opnd1.atr.simb->valfloat));
+                    break;
+            }            
 	}
-    if (tipo1 == INTOPND)
-		*(quad->result.atr.simb->vallogic) = !(valint1);
 	
 }
 
