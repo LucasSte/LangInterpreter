@@ -293,6 +293,9 @@ void ExecQuadOR(quadrupla quad);
 void ExecQuadAND(quadrupla quad);
 void ExecQuadNOT(quadrupla quad);
 void ExecQuadNEG(quadrupla quad);
+void ExecQuadINDEX(quadrupla quad);
+void ExecQuadAtribpont(quadrupla quad);
+void ExecQuadContpont(quadrupla quad);
 
 int tipocorrente;
 int tab = 0;
@@ -1983,9 +1986,17 @@ void InterpCodIntermedSubProgramas()
             case PARAM:
                 EmpilharOpnd(quad->opnd1,&pilhaopnd);
                 break;
+
+            case OPIND:
+                EmpilharOpnd(quad->opnd1, &pilhaopnd);
+                break;
             
             case OPJUMP:
                 quadprox = quad->result.atr.rotulo;  
+                break;
+            
+            case OPINDEX:
+                ExecQuadINDEX(quad);
                 break;
 
             case OPJF:
@@ -2096,6 +2107,15 @@ void InterpCodIntermedSubProgramas()
             case OPLER:
                 ExecQuadRead(quad);
                 break;
+
+            case ATRIBPONT:
+                ExecQuadAtribpont(quad);
+                break;
+            
+            case CONTPONT:
+                ExecQuadContpont(quad);
+                break;
+
         }
         if(!encerra)
             quad = quadprox;
@@ -3209,5 +3229,120 @@ void ExecQuadRead(quadrupla quad)
                 break;   
         }
         printf("\n");
+    }
+}
+
+void ExecQuadINDEX(quadrupla quad)
+{
+    int i;
+    operando opndaux;
+    pilhaoperando pilhaopndaux;
+
+    InicPilhaOpnd(&pilhaopndaux);
+    for(i=1; i<=quad->opnd2.atr.valint; i++)
+    {
+        EmpilharOpnd(TopoOpnd(pilhaopnd), &pilhaopndaux);
+        DesempilharOpnd(&pilhaopnd);
+    }
+    
+    int dim;
+    
+    int pos = 0;
+    for(i = 1; i<=quad->opnd1.atr.simb->ndims; i++)
+    {
+        pos *= quad->opnd1.atr.simb->dims[i];
+        opndaux = TopoOpnd(pilhaopndaux);
+        DesempilharOpnd(&pilhaopndaux);
+        switch(opndaux.tipo)
+        {
+        case INTOPND:
+            dim = opndaux.atr.valint;
+            break;
+        case CHAROPND:
+            dim = opndaux.atr.valchar;
+            break;
+        case VAROPND:
+            switch(opndaux.atr.simb->tvar)
+            {
+                case INTEGER:
+                    dim = *(opndaux.atr.simb->valint);
+                    break;
+                case CHAR:
+                    dim = *(opndaux.atr.simb->valchar);
+                    break;
+            }
+            break;
+        }
+        pos += dim;
+    }
+
+    switch(quad->opnd1.atr.simb->tvar)
+    {
+        case INTEGER:
+            quad->result.atr.simb->valint = &(quad->opnd1.atr.simb->valint[pos]);
+            break;
+        case FLOAT:
+            quad->result.atr.simb->valfloat = &(quad->opnd1.atr.simb->valfloat[pos]);
+            break;
+        case CHAR:
+            quad->result.atr.simb->valchar = &(quad->opnd1.atr.simb->valchar[pos]);
+            break;
+        case LOGICAL:
+            quad->result.atr.simb->vallogic = &(quad->opnd1.atr.simb->vallogic[pos]);
+            break;
+    }
+}
+
+void ExecQuadContpont(quadrupla quad)
+{
+    switch(quad->opnd1.atr.simb->tvar)
+    {
+        case PTRINT:
+            *(quad->result.atr.simb->valint) = *(quad->opnd1.atr.simb->valint);
+            break;
+        case PTRFLOAT:
+            *(quad->result.atr.simb->valfloat) = *(quad->opnd1.atr.simb->valfloat);
+            break;
+        case PTRCHAR:
+            *(quad->result.atr.simb->valchar) = *(quad->opnd1.atr.simb->valchar);
+            break;
+        case PTRLOG:
+            *(quad->result.atr.simb->vallogic) = *(quad->opnd1.atr.simb->vallogic);        
+    }
+}
+
+void ExecQuadAtribpont(quadrupla quad)
+{
+    switch(quad->opnd1.tipo)
+    {
+        case INTOPND:
+            *(quad->result.atr.simb->valint) = quad->opnd1.atr.valint;
+            break;
+        case REALOPND:
+            *(quad->result.atr.simb->valfloat) = quad->opnd1.atr.valfloat;
+            break;
+        case CHAROPND:
+            *(quad->result.atr.simb->valchar) = quad->opnd1.atr.valchar;
+            break;
+        case LOGICOPND:
+            *(quad->result.atr.simb->vallogic) = quad->opnd1.atr.vallogic;
+            break;
+        case VAROPND:
+            switch(quad->opnd1.atr.simb->tvar)
+            {
+                case INTEGER:
+                    *(quad->result.atr.simb->valint) = *(quad->opnd1.atr.simb->valint);
+                    break;
+                case FLOAT:
+                    *(quad->result.atr.simb->valfloat) = *(quad->opnd1.atr.simb->valfloat);
+                    break;
+                case CHAR:
+                    *(quad->result.atr.simb->valchar) = *(quad->opnd1.atr.simb->valchar);
+                    break;
+                case LOGICAL:
+                    *(quad->result.atr.simb->vallogic) = *(quad->opnd1.atr.simb->vallogic);
+                    break;
+            }
+            break;
     }
 }

@@ -1,34 +1,20 @@
 programa MatrizTransposta {{{
 
 var {
-    int (A[10,10], n)
+    int (n)
 }
 
 principal
 var {
-    logic(l) carac(c) real(r) int(i)
+    int(A[3, 2, 4])
 }
 comandos {
+    n = 4;
+    A[1, 0, 0] = 1;
+    A[1, 1, 0] = 2;
+    A[2, 0, 3] = n + 1;
 
-    ler(r, l, c, i);
-    i = 2;
-    i = (i*i+i);
-    
-    l = !verdade;
-
-    se((l && verdade)){
-        r = (r - 1.5)*i*i/5.55;
-        /*r = 2;*/
-    }
-    
-    senao r = 10.123;
-    
-    /*se(l){
-        l = FALSO;
-    }*/
-    i = 351 % 2;
-    
-    escrever(r, l, c, i);    
+    escrever(A[1, 0, 0], A[1, 1, 0], A[2, 0, 3]);
 
 
 }
