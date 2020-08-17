@@ -3063,6 +3063,7 @@ void ExecQuadCallop(quadrupla quad){
     operando opendAux;
     pilhaoperando pilhaopndaux;
     codintermedaux = codintermed->prox;
+    pontelemlistsimb listPtr;
     if(VaziaContexto(pilhacontext)){
         printf("\nErro : Sem contexto durante execução de ExecQuadCallop");
     }
@@ -3084,6 +3085,25 @@ void ExecQuadCallop(quadrupla quad){
                 for(i=1; i<= quad->opnd2.atr.valint;i++){
                     EmpilharOpnd(TopoOpnd(pilhaopnd),&pilhaopndaux);
                     DesempilharOpnd(&pilhaopnd);
+                }
+
+                listPtr = quad->opnd1.atr.simb->listparamc;
+                for(i=1; i<=quad->opnd2.atr.valint; i++)
+                {
+                    opndaux = TopoOpnd(pilhaopndaux);
+                    DesempilharOpnd(&pilhaopndaux);
+                    
+                    switch(opndaux.tipo)
+                    {
+                        case INTOPND:
+                            *(listPtr->simb->valint) = opndaux.valint;
+                            break;
+                        case CHAROPND:
+                            *(listPtr->simb->valchar) = opndaux.valchar;
+                            break;
+                        case REALOPND:
+                            *()
+                    }
                 }
 
             }
