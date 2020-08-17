@@ -2238,34 +2238,37 @@ void ExecQuadNEG (quadrupla quad) {
 
 
 void ExecQuadNOT (quadrupla quad) {
-	int tipo1, valint1;
+	char tipo1, valint1;
+    tipo1 = -1;
 	
     switch (quad->opnd1.tipo) {
 		case LOGICOPND:
-            tipo1 = INTOPND; valint1 = quad->opnd1.atr.vallogic;break;
+            tipo1 = CHAROPND; valint1 = quad->opnd1.atr.vallogic;break;
 		case VAROPND:
 			switch (quad->opnd1.atr.simb->tvar) {
-                case LOGICAL: tipo1 = INTOPND;
+                case LOGICAL: tipo1 = CHAROPND;
                     valint1 = *(quad->opnd1.atr.simb->vallogic);
                     break;
 			}
 			break;
 	}
-    if (tipo1 == INTOPND)
-		*(quad->result.atr.simb->vallogic) = ~(valint1);
+    if (tipo1 == CHAROPND)
+		*(quad->result.atr.simb->vallogic) = !(valint1);
 	
 }
 
 
 void ExecQuadAND (quadrupla quad) {
-	int tipo1, tipo2, valint1, valint2;
+	char tipo1, tipo2, valint1, valint2;
+    tipo1 = -1;
+    tipo2 = -2;
 	
     switch (quad->opnd1.tipo) {
 		case LOGICOPND:
-            tipo1 = INTOPND; valint1 = quad->opnd1.atr.vallogic;break;
+            tipo1 = CHAROPND; valint1 = quad->opnd1.atr.vallogic;break;
 		case VAROPND:
 			switch (quad->opnd1.atr.simb->tvar) {
-                case LOGICAL: tipo1 = INTOPND;
+                case LOGICAL: tipo1 = CHAROPND;
                     valint1 = *(quad->opnd1.atr.simb->vallogic);
                     break;
 			}
@@ -2273,16 +2276,16 @@ void ExecQuadAND (quadrupla quad) {
 	}
     switch (quad->opnd2.tipo) {
         case LOGICOPND:
-            tipo2 = INTOPND; valint2 = quad->opnd2.atr.vallogic;break;
+            tipo2 = CHAROPND; valint2 = quad->opnd2.atr.vallogic;break;
 		case VAROPND:
 			switch (quad->opnd2.atr.simb->tvar) {
-                case LOGICAL: tipo2 = INTOPND;
+                case LOGICAL: tipo2 = CHAROPND;
                     valint2 = *(quad->opnd2.atr.simb->vallogic);
                     break;
 				}
 			break;
 	}
-    if (tipo1 == INTOPND && tipo2 == INTOPND)
+    if (tipo1 == CHAROPND && tipo2 == CHAROPND)
 		*(quad->result.atr.simb->vallogic) = (valint1 && valint2);
 	
 }
@@ -2290,14 +2293,14 @@ void ExecQuadAND (quadrupla quad) {
 
 
 void ExecQuadOR (quadrupla quad) {
-	int tipo1, tipo2, valint1, valint2;
+	char tipo1, tipo2, valint1, valint2;
 	
     switch (quad->opnd1.tipo) {
 		case LOGICOPND:
-            tipo1 = INTOPND; valint1 = quad->opnd1.atr.vallogic;break;
+            tipo1 = CHAROPND; valint1 = quad->opnd1.atr.vallogic;break;
 		case VAROPND:
 			switch (quad->opnd1.atr.simb->tvar) {
-                case LOGICAL: tipo1 = INTOPND;
+                case LOGICAL: tipo1 = CHAROPND;
                     valint1 = *(quad->opnd1.atr.simb->vallogic);
                     break;
 			}
@@ -2305,16 +2308,16 @@ void ExecQuadOR (quadrupla quad) {
 	}
     switch (quad->opnd2.tipo) {
         case LOGICOPND:
-            tipo2 = INTOPND; valint2 = quad->opnd2.atr.vallogic;break;
+            tipo2 = CHAROPND; valint2 = quad->opnd2.atr.vallogic;break;
 		case VAROPND:
 			switch (quad->opnd2.atr.simb->tvar) {
-                case LOGICAL: tipo2 = INTOPND;
+                case LOGICAL: tipo2 = CHAROPND;
                     valint2 = *(quad->opnd2.atr.simb->vallogic);
                     break;
 				}
 			break;
 	}
-    if (tipo1 == INTOPND && tipo2 == INTOPND)
+    if (tipo1 == CHAROPND && tipo2 == CHAROPND)
 		*(quad->result.atr.simb->vallogic) = (valint1 || valint2);
 	
 }
