@@ -5,9 +5,14 @@ var {
 }
 
 procedimento avan(carac c1, carac c2)
+var {
+    carac(p)
+}
+
 
 comandos {
-    escrever(c1, c2);
+    p = 'l';
+    escrever(p, c1, c2);
 }
 
 principal

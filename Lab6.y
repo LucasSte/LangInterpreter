@@ -1558,6 +1558,10 @@ simbolo InsereSimb(char *cadeia, int tid, int tvar, simbolo escopo){
     s->listparamc = NULL;
     s->listparamf = NULL;
     s->nparams = 0;	
+    s->valint = NULL;
+    s->valfloat = NULL;
+    s->vallogic = NULL;
+    s->valchar = NULL;
     return s;
 }
 
@@ -2146,16 +2150,20 @@ void AlocaVariaveis(quadrupla quad)
                     switch(s->tvar)
                     {
                         case INTEGER:
-                            s->valint = malloc(nelemaloc*sizeof(int));
+                            if(s->valint == NULL)
+                                s->valint = malloc(nelemaloc*sizeof(int));
                             break;
                         case FLOAT:
-                            s->valfloat = malloc(nelemaloc*sizeof(float));
+                            if(s->valfloat == NULL)
+                                s->valfloat = malloc(nelemaloc*sizeof(float));
                             break;
                         case CHAR:
-                            s->valchar = malloc(nelemaloc*sizeof(char));
+                            if(s->valchar == NULL)
+                                s->valchar = malloc(nelemaloc*sizeof(char));
                             break;
                         case LOGICAL:
-                            s->vallogic = malloc(nelemaloc * sizeof(char));
+                            if(s->vallogic == NULL)
+                                s->vallogic = malloc(nelemaloc * sizeof(char));
                             break;
                     }
                     printf("\n\t\t\t%s: %d elemento(s) alocado(s)", s->cadeia, nelemaloc);
@@ -3089,45 +3097,45 @@ void ExecQuadCallop(quadrupla quad){
                 }
 
                 listPtr = quad->opnd1.atr.simb->listparamc;
-                printf("simb - > %s\n", quad->opnd1.atr.simb->cadeia);
-                printf("listpr - > %d\n", quad->opnd1.atr.simb->listparamc);
                 for(i=1; i<=quad->opnd2.atr.valint; i++)
                 {
-                    printf("Passei - 1\n");
                     opndaux = TopoOpnd(pilhaopndaux);
                     DesempilharOpnd(&pilhaopndaux);
-                    
-                    printf("Passei - 2\n");
                     switch(opndaux.tipo)
                     {
                         case INTOPND:
+                            listPtr->simb->valint = (int*) malloc(sizeof(int));
                             *(listPtr->simb->valint) = opndaux.atr.valint;
                             break;
                         case CHAROPND:
-                            printf("PARAM --- %c\n", opndaux.atr.valchar);
-                            printf("Simb -- %d\n", listPtr->simb->cadeia);
+                            listPtr->simb->valchar = (char*) malloc(sizeof(char));
                             *(listPtr->simb->valchar) = opndaux.atr.valchar;
-                            printf("Passei - 3\n");
                             break;
                         case REALOPND:
+                            listPtr->simb->valfloat = (float*) malloc(sizeof(float));
                             *(listPtr->simb->valfloat) = opndaux.atr.valfloat;
                             break;
                         case LOGICOPND:
+                            listPtr->simb->vallogic = (char*) malloc(sizeof(char));
                             *(listPtr->simb->vallogic) = opndaux.atr.vallogic;
                             break;
                         case VAROPND:
                             switch(opndaux.atr.simb->tvar)
                             {
                                 case INTEGER:
+                                    listPtr->simb->valint = (int*) malloc(sizeof(int));
                                     *(listPtr->simb->valint) = *(opndaux.atr.simb->valint);
                                     break;
                                 case CHAR:
+                                    listPtr->simb->valchar = (char *) malloc(sizeof(char));
                                     *(listPtr->simb->valchar) = *(opndaux.atr.simb->valchar);
                                     break;
                                 case FLOAT:
+                                    listPtr->simb->valfloat = (float *) malloc(sizeof(float));
                                     *(listPtr->simb->valfloat) = *(opndaux.atr.simb->valfloat);
                                     break;
                                 case LOGICAL:
+                                    listPtr->simb->vallogic = (char*) malloc(sizeof(char));
                                     *(listPtr->simb->vallogic) = *(opndaux.atr.simb->vallogic);
                                     break;
                             }
