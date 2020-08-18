@@ -191,7 +191,6 @@ typedef struct contexto contexto;
 struct contexto{
     modhead moduloAtual;
     quadrupla quadruplaAtual;
-    //operando result;
 };
 
 typedef struct nohcontexto nohcontexto;
@@ -2028,50 +2027,84 @@ void InterpCodIntermedSubProgramas()
                 ctx = (contexto){codintermedaux, quad};    
                 EmpilharContexto(ctx,&pilhacontext);
                 ExecQuadCallop(quad);
-                //ctx = TopoContexto(pilhacontext);
-                //codintermedaux = ctx.moduloAtual;
                 quadprox = codintermedaux->listquad->prox;
-                //DesempilharContexto(&pilhacontext);
                 break;
             
             case OPRETURN:
                 ctx = TopoContexto(pilhacontext);
                 if(quad->opnd1.tipo != IDLEOPND)
                 {
+                    int tipo, valint;
+                    char valchar, vallogic;
+                    float valfloat;
                     switch(quad->opnd1.tipo)
                     {
                         case INTOPND:
-                            *(ctx.quadruplaAtual->result.atr.simb->valint) = quad->opnd1.atr.valint;
+                            tipo = INTOPND;
+                            valint = quad->opnd1.atr.valint;
                             break;
                         case CHAROPND:
-                            *(ctx.quadruplaAtual->result.atr.simb->valchar) = quad->opnd1.atr.valchar;
+                            tipo = CHAROPND;
+                            valchar = quad->opnd1.atr.valchar;
                             break;
                         case REALOPND:
-                            *(ctx.quadruplaAtual->result.atr.simb->valfloat) = quad->opnd1.atr.valfloat;
+                            tipo = REALOPND;
+                            valfloat = quad->opnd1.atr.valfloat;
                             break;
                         case LOGICOPND:
-                            *(ctx.quadruplaAtual->result.atr.simb->vallogic) = quad->opnd1.atr.vallogic;
+                            tipo = LOGICOPND;
+                            vallogic = quad->opnd1.atr.vallogic;
                             break;
                         case VAROPND:
                             switch(quad->opnd1.atr.simb->tvar)
                             {
                                 case INTEGER:
-                                    *(ctx.quadruplaAtual->result.atr.simb->valint) = *(quad->opnd1.atr.simb->valint);
+                                    tipo = INTOPND;
+                                    valint = *(quad->opnd1.atr.simb->valint);
                                     break;
                                 case CHAR:
-                                    *(ctx.quadruplaAtual->result.atr.simb->valchar) = *(quad->opnd1.atr.simb->valchar);
+                                    tipo = CHAROPND;
+                                    valchar = *(quad->opnd1.atr.simb->valchar);
                                     break;
                                 case FLOAT:
-                                    *(ctx.quadruplaAtual->result.atr.simb->valfloat) = *(quad->opnd1.atr.simb->valfloat);
+                                    tipo = REALOPND;
+                                    valfloat = *(quad->opnd1.atr.simb->valfloat);
                                     break;
                                 case LOGICAL:
-                                    *(ctx.quadruplaAtual->result.atr.simb->vallogic) = *(quad->opnd1.atr.simb->vallogic);
+                                    tipo = LOGICOPND;
+                                    vallogic = *(quad->opnd1.atr.simb->vallogic);
                                     break;
                             }
                     }
+    
+                    switch(ctx.quadruplaAtual->result.atr.simb->tvar)
+                    {
+                        case INTEGER:
+                            if(tipo == INTOPND)
+                                *(ctx.quadruplaAtual->result.atr.simb->valint) = valint;
+                            else if(tipo == CHAROPND)
+                                *(ctx.quadruplaAtual->result.atr.simb->valint) = valchar;
+                            break;
+                        case CHAR:
+                            if(tipo == INTOPND)
+                                *(ctx.quadruplaAtual->result.atr.simb->valchar) = valint;
+                            else if(tipo == CHAROPND)
+                                *(ctx.quadruplaAtual->result.atr.simb->valchar) = valchar;
+                            break;
+                        case LOGICAL:
+                            *(ctx.quadruplaAtual->result.atr.simb->valchar) = vallogic;
+                            break;
+                        case FLOAT:
+                            if(tipo == INTOPND)
+                                *(ctx.quadruplaAtual->result.atr.simb->valfloat) = valint;
+                            else if(tipo == REALOPND)
+                                *(ctx.quadruplaAtual->result.atr.simb->valchar) = valfloat;
+                            else if(tipo == CHAROPND)
+                                *(ctx.quadruplaAtual->result.atr.simb->valchar) = valchar;
+                            break;
+                    }
                 }
                 codintermedaux = ctx.moduloAtual;
-                //printf("Modulo voltando --> %s\n", codintermedaux->modname->cadeia);
                 quadprox = ctx.quadruplaAtual->prox;
                 DesempilharContexto(&pilhacontext);
                 break;
@@ -3133,7 +3166,9 @@ void ExecQuadCallop(quadrupla quad){
                     EmpilharOpnd(TopoOpnd(pilhaopnd),&pilhaopndaux);
                     DesempilharOpnd(&pilhaopnd);
                 }
-
+                int tipoaux, valint;
+                char valchar, vallogic;
+                float valfloat;
                 listPtr = quad->opnd1.atr.simb->listparamc;
                 for(i=1; i<=quad->opnd2.atr.valint; i++)
                 {
@@ -3142,48 +3177,78 @@ void ExecQuadCallop(quadrupla quad){
                     switch(opndaux.tipo)
                     {
                         case INTOPND:
-                            listPtr->simb->valint = (int*) malloc(sizeof(int));
-                            *(listPtr->simb->valint) = opndaux.atr.valint;
+                            tipoaux = INTOPND;
+                            valint = opndaux.atr.valint;
                             break;
                         case CHAROPND:
-                            listPtr->simb->valchar = (char*) malloc(sizeof(char));
-                            *(listPtr->simb->valchar) = opndaux.atr.valchar;
+                            tipoaux = CHAROPND;
+                            valchar = opndaux.atr.valchar;
                             break;
                         case REALOPND:
-                            listPtr->simb->valfloat = (float*) malloc(sizeof(float));
-                            *(listPtr->simb->valfloat) = opndaux.atr.valfloat;
+                            tipoaux = REALOPND;
+                            valfloat = opndaux.atr.valfloat;
                             break;
                         case LOGICOPND:
-                            listPtr->simb->vallogic = (char*) malloc(sizeof(char));
-                            *(listPtr->simb->vallogic) = opndaux.atr.vallogic;
+                            tipoaux = LOGICOPND;
+                            vallogic = opndaux.atr.vallogic;
                             break;
                         case VAROPND:
                             switch(opndaux.atr.simb->tvar)
                             {
                                 case INTEGER:
-                                    listPtr->simb->valint = (int*) malloc(sizeof(int));
-                                    *(listPtr->simb->valint) = *(opndaux.atr.simb->valint);
+                                    tipoaux = INTOPND;
+                                    valint = *(opndaux.atr.simb->valint);
                                     break;
                                 case CHAR:
-                                    listPtr->simb->valchar = (char *) malloc(sizeof(char));
-                                    *(listPtr->simb->valchar) = *(opndaux.atr.simb->valchar);
+                                    tipoaux = CHAROPND;
+                                    valchar = *(opndaux.atr.simb->valchar);
                                     break;
                                 case FLOAT:
-                                    listPtr->simb->valfloat = (float *) malloc(sizeof(float));
-                                    *(listPtr->simb->valfloat) = *(opndaux.atr.simb->valfloat);
+                                    tipoaux = REALOPND;
+                                    valfloat = *(opndaux.atr.simb->valfloat);
                                     break;
                                 case LOGICAL:
-                                    listPtr->simb->vallogic = (char*) malloc(sizeof(char));
-                                    *(listPtr->simb->vallogic) = *(opndaux.atr.simb->vallogic);
+                                    tipoaux = LOGICOPND;
+                                    vallogic = *(opndaux.atr.simb->vallogic);
                                     break;
                             }
+                    }
+
+                    switch(listPtr->simb->tvar)
+                    {
+                        case INTEGER:
+                            listPtr->simb->valint = (int*) malloc(sizeof(int));
+                            if(tipoaux == INTOPND)
+                                *(listPtr->simb->valint) = valint;
+                            else if(tipoaux == CHAROPND)
+                                *(listPtr->simb->valint) = valchar;
+                            break;
+                        case CHAR:
+                            listPtr->simb->valchar = (char*) malloc(sizeof(char));
+                            if(tipoaux == INTOPND)
+                                *(listPtr->simb->valchar) = valint;
+                            else if(tipoaux == CHAROPND)
+                                *(listPtr->simb->valchar) = valchar;
+                            break;
+                        case LOGICAL:
+                            listPtr->simb->vallogic = (char*) malloc(sizeof(char));
+                            *(listPtr->simb->vallogic) = vallogic;
+                            break;
+                        case FLOAT:
+                            listPtr->simb->valfloat = (float *) malloc(sizeof(float));
+                            if(tipoaux == INTOPND)
+                                *(listPtr->simb->valfloat) = valint;
+                            else if(tipoaux == REALOPND)
+                                *(listPtr->simb->valfloat) = valfloat;
+                            else if(tipoaux == CHAROPND)
+                                *(listPtr->simb->valfloat) = valchar;
+                            break;
                     }
 
                     listPtr = listPtr->prox;
                 }
 
             }
-            //InterpCodIntermedSubProgramas();
         }
     }
 }
@@ -3409,36 +3474,67 @@ void ExecQuadContpont(quadrupla quad)
 
 void ExecQuadAtribpont(quadrupla quad)
 {
-    switch(quad->opnd1.tipo)
+    int tipo1, valint1;
+    float valfloat1;
+    char valchar1, vallogic1;
+    switch (quad->opnd1.tipo) 
     {
         case INTOPND:
-            *(quad->result.atr.simb->valint) = quad->opnd1.atr.valint;
-            break;
+            tipo1 = INTOPND;
+            valint1 = quad->opnd1.atr.valint; break;
         case REALOPND:
-            *(quad->result.atr.simb->valfloat) = quad->opnd1.atr.valfloat;
-            break;
+            tipo1 = REALOPND;
+            valfloat1 = quad->opnd1.atr.valfloat; break;
         case CHAROPND:
-            *(quad->result.atr.simb->valchar) = quad->opnd1.atr.valchar;
-            break;
+            tipo1 = CHAROPND;
+            valchar1 = quad->opnd1.atr.valchar; break;
         case LOGICOPND:
-            *(quad->result.atr.simb->vallogic) = quad->opnd1.atr.vallogic;
-            break;
+            tipo1 = LOGICOPND;
+            vallogic1 = quad->opnd1.atr.vallogic; break;
         case VAROPND:
-            switch(quad->opnd1.atr.simb->tvar)
-            {
+            switch (quad->opnd1.atr.simb->tvar) {
                 case INTEGER:
-                    *(quad->result.atr.simb->valint) = *(quad->opnd1.atr.simb->valint);
-                    break;
+                    tipo1 = INTOPND;
+                    valint1 = *(quad->opnd1.atr.simb->valint); break;
                 case FLOAT:
-                    *(quad->result.atr.simb->valfloat) = *(quad->opnd1.atr.simb->valfloat);
-                    break;
+                    tipo1 = REALOPND;
+                    valfloat1=*(quad->opnd1.atr.simb->valfloat);break;
                 case CHAR:
-                    *(quad->result.atr.simb->valchar) = *(quad->opnd1.atr.simb->valchar);
-                    break;
+                    tipo1 = CHAROPND;
+                    valchar1=*(quad->opnd1.atr.simb->valchar);break;
                 case LOGICAL:
-                    *(quad->result.atr.simb->vallogic) = *(quad->opnd1.atr.simb->vallogic);
+                    tipo1 = LOGICOPND;
+                    vallogic1 = *(quad->opnd1.atr.simb->vallogic);
                     break;
             }
             break;
+	}
+
+    switch(quad->result.atr.simb->tvar)
+    {
+        case PTRINT:
+            if(tipo1 == INTOPND)
+                *(quad->result.atr.simb->valint) = valint1;
+            else if(tipo1 == CHAROPND)
+                *(quad->result.atr.simb->valint) = valchar1;
+            break;
+        case PTRCHAR:
+            if(tipo1 == INTOPND)
+                *(quad->result.atr.simb->valchar) = valint1;
+            else if(tipo1 == CHAROPND)
+                *(quad->result.atr.simb->valchar) = valchar1;
+            break;
+        case PTRLOG:
+            *(quad->result.atr.simb->vallogic) = vallogic1;
+            break;
+        case PTRFLOAT:
+        if(tipo1 == INTOPND)
+            *(quad->result.atr.simb->valfloat) = valint1;
+        else if(tipo1 == REALOPND)
+            *(quad->result.atr.simb->valfloat) = valfloat1;
+        else if(tipo1 == CHAROPND)
+            *(quad->result.atr.simb->valfloat) = valchar1;
+        break;
     }
+
 }
