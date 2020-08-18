@@ -191,7 +191,7 @@ typedef struct contexto contexto;
 struct contexto{
     modhead moduloAtual;
     quadrupla quadruplaAtual;
-    operando result;
+    //operando result;
 };
 
 typedef struct nohcontexto nohcontexto;
@@ -2025,17 +2025,55 @@ void InterpCodIntermedSubProgramas()
                 break;
             
             case CALLOP:
-                ctx = (contexto){codintermedaux, quad ,opndidle};    
+                ctx = (contexto){codintermedaux, quad};    
                 EmpilharContexto(ctx,&pilhacontext);
                 ExecQuadCallop(quad);
-                ctx = TopoContexto(pilhacontext);
-                codintermedaux = ctx.moduloAtual;
-                quad = ctx.quadruplaAtual;
-                DesempilharContexto(&pilhacontext);
+                //ctx = TopoContexto(pilhacontext);
+                //codintermedaux = ctx.moduloAtual;
+                quadprox = codintermedaux->listquad->prox;
+                //DesempilharContexto(&pilhacontext);
                 break;
             
             case OPRETURN:
-                encerra = TRUE;
+                ctx = TopoContexto(pilhacontext);
+                if(quad->opnd1.tipo != IDLEOPND)
+                {
+                    switch(quad->opnd1.tipo)
+                    {
+                        case INTOPND:
+                            *(ctx.quadruplaAtual->result.atr.simb->valint) = quad->opnd1.atr.valint;
+                            break;
+                        case CHAROPND:
+                            *(ctx.quadruplaAtual->result.atr.simb->valchar) = quad->opnd1.atr.valchar;
+                            break;
+                        case REALOPND:
+                            *(ctx.quadruplaAtual->result.atr.simb->valfloat) = quad->opnd1.atr.valfloat;
+                            break;
+                        case LOGICOPND:
+                            *(ctx.quadruplaAtual->result.atr.simb->vallogic) = quad->opnd1.atr.vallogic;
+                            break;
+                        case VAROPND:
+                            switch(quad->opnd1.atr.simb->tvar)
+                            {
+                                case INTEGER:
+                                    *(ctx.quadruplaAtual->result.atr.simb->valint) = *(quad->opnd1.atr.simb->valint);
+                                    break;
+                                case CHAR:
+                                    *(ctx.quadruplaAtual->result.atr.simb->valchar) = *(quad->opnd1.atr.simb->valchar);
+                                    break;
+                                case FLOAT:
+                                    *(ctx.quadruplaAtual->result.atr.simb->valfloat) = *(quad->opnd1.atr.simb->valfloat);
+                                    break;
+                                case LOGICAL:
+                                    *(ctx.quadruplaAtual->result.atr.simb->vallogic) = *(quad->opnd1.atr.simb->vallogic);
+                                    break;
+                            }
+                    }
+                }
+                codintermedaux = ctx.moduloAtual;
+                //printf("Modulo voltando --> %s\n", codintermedaux->modname->cadeia);
+                quadprox = ctx.quadruplaAtual->prox;
+                DesempilharContexto(&pilhacontext);
                 break;
 
             case OPMAIS:
@@ -3145,7 +3183,7 @@ void ExecQuadCallop(quadrupla quad){
                 }
 
             }
-            InterpCodIntermedSubProgramas();
+            //InterpCodIntermedSubProgramas();
         }
     }
 }
