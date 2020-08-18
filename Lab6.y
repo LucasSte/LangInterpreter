@@ -1569,6 +1569,7 @@ void InsereParametro(simbolo modulo, simbolo param)
         modulo->listparamc->simb = param;
         modulo->listparamc->prox = NULL;
         modulo->listparamf = modulo->listparamc;
+        printf("\nInserido - %s em %s -- end = %d\n", modulo->cadeia, param->cadeia, modulo->listparamc);
     }
     else
     {
@@ -3088,22 +3089,51 @@ void ExecQuadCallop(quadrupla quad){
                 }
 
                 listPtr = quad->opnd1.atr.simb->listparamc;
+                printf("simb - > %s\n", quad->opnd1.atr.simb->cadeia);
+                printf("listpr - > %d\n", quad->opnd1.atr.simb->listparamc);
                 for(i=1; i<=quad->opnd2.atr.valint; i++)
                 {
+                    printf("Passei - 1\n");
                     opndaux = TopoOpnd(pilhaopndaux);
                     DesempilharOpnd(&pilhaopndaux);
                     
+                    printf("Passei - 2\n");
                     switch(opndaux.tipo)
                     {
                         case INTOPND:
-                            *(listPtr->simb->valint) = opndaux.valint;
+                            *(listPtr->simb->valint) = opndaux.atr.valint;
                             break;
                         case CHAROPND:
-                            *(listPtr->simb->valchar) = opndaux.valchar;
+                            printf("PARAM --- %c\n", opndaux.atr.valchar);
+                            printf("Simb -- %d\n", listPtr->simb->cadeia);
+                            *(listPtr->simb->valchar) = opndaux.atr.valchar;
+                            printf("Passei - 3\n");
                             break;
                         case REALOPND:
-                            *()
+                            *(listPtr->simb->valfloat) = opndaux.atr.valfloat;
+                            break;
+                        case LOGICOPND:
+                            *(listPtr->simb->vallogic) = opndaux.atr.vallogic;
+                            break;
+                        case VAROPND:
+                            switch(opndaux.atr.simb->tvar)
+                            {
+                                case INTEGER:
+                                    *(listPtr->simb->valint) = *(opndaux.atr.simb->valint);
+                                    break;
+                                case CHAR:
+                                    *(listPtr->simb->valchar) = *(opndaux.atr.simb->valchar);
+                                    break;
+                                case FLOAT:
+                                    *(listPtr->simb->valfloat) = *(opndaux.atr.simb->valfloat);
+                                    break;
+                                case LOGICAL:
+                                    *(listPtr->simb->vallogic) = *(opndaux.atr.simb->vallogic);
+                                    break;
+                            }
                     }
+
+                    listPtr = listPtr->prox;
                 }
 
             }

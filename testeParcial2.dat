@@ -4,18 +4,19 @@ var {
     int (n)
 }
 
+procedimento avan(carac c1, carac c2)
+
+comandos {
+    escrever(c1, c2);
+}
+
 principal
 var {
     int(A[3, 2, 4])
 }
 comandos {
-    n = 4;
-    A[1, 0, 0] = 1;
-    A[1, 1, 0] = 2;
-    A[2, 0, 3] = n + 1;
-
-    escrever(A[1, 0, 0], A[1, 1, 0], A[2, 0, 3]);
-
+    
+    chamar avan('a', 'd');
 
 }
 }}}
