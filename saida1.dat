@@ -35,7 +35,7 @@ var {
 comandos {
 	escrever ("Digita o tamanho do vetor\n");
 	ler (aux);
-	para n (0; n <= aux; n + 1){
+	para n (0; n < aux; n + 1){
 		ler (lido);
 		vector[n] = lido;
 	}
@@ -58,7 +58,7 @@ comandos {
 INTERPRETADOR:
 Digita o tamanho do vetor
 
-		(INTERPRETADOR)Lido 10
+		(INTERPRETADOR)Lido 11
 
 		(INTERPRETADOR)Lido a
 
@@ -74,9 +74,9 @@ Digita o tamanho do vetor
 
 		(INTERPRETADOR)Lido g
 
-		(INTERPRETADOR)Lido i
+		(INTERPRETADOR)Lido h
 
-		(INTERPRETADOR)Lido j
+		(INTERPRETADOR)Lido i
 
 		(INTERPRETADOR)Lido k
 

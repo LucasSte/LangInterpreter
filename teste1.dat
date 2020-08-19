@@ -37,7 +37,7 @@ comandos
 {
 	escrever("Digita o tamanho do vetor\n");
 	ler(aux);
-	para n(0; n <= aux; n+1)
+	para n(0; n < aux; n+1)
 	{
 		ler(lido);
 		vector[n] = lido;
