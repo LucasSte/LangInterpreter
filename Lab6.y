@@ -3263,7 +3263,7 @@ void ExecQuadWrite(quadrupla quad)
     operando opndaux;
     pilhaoperando pilhaopndaux;
 
-    printf("\n\t\tEscrevendo: \n\n");
+    //printf("\n\t\t(INTEPRETADOR)Escrevendo: \n\n");
     InicPilhaOpnd(&pilhaopndaux);
     for(i = 1; i<=quad->opnd1.atr.valint; i++)
     {
@@ -3271,7 +3271,7 @@ void ExecQuadWrite(quadrupla quad)
         DesempilharOpnd(&pilhaopnd);
     }
     
-    printf("\t\t");
+    //printf("\t\t");
 
     for(i=1; i<=quad->opnd1.atr.valint; i++)
     {
@@ -3301,26 +3301,26 @@ void ExecQuadWrite(quadrupla quad)
                 switch(opndaux.atr.simb->tvar)
                 {
                     case INTEGER:
-                        printf("%d ", *(opndaux.atr.simb->valint));
+                        printf("%d", *(opndaux.atr.simb->valint));
                         break;
                     case FLOAT:
-                        printf("%g ", *(opndaux.atr.simb->valfloat));
+                        printf("%g", *(opndaux.atr.simb->valfloat));
                         break;
                     case LOGICAL:
                         if(*(opndaux.atr.simb->vallogic)==1)
-                            printf("VERDADE ");
+                            printf("VERDADE");
                         else
-                            printf("FALSO ");
+                            printf("FALSO");
                         break;
                     case CHAR:
-                        printf("%c ", *(opndaux.atr.simb->valchar));
+                        printf("%c", *(opndaux.atr.simb->valchar));
                         break;
                 }
                 break; 
         }
-        printf(" ");
+        //printf(" ");
     }
-    printf("\n");
+    //printf("\n");
 }
 
 void ImprimeCadeia(char * cadeia)
@@ -3363,7 +3363,7 @@ void ExecQuadRead(quadrupla quad)
     operando opndaux;
     pilhaoperando pilhaopndaux;
 
-    printf("\n\t\tLendo: \n");
+    printf("\n\t\t(INTERPRETADOR)");
     InicPilhaOpnd(&pilhaopndaux);
     for(i=1; i<=quad->opnd1.atr.valint; i++)
     {
@@ -3378,19 +3378,19 @@ void ExecQuadRead(quadrupla quad)
         {
             case INTEGER:
                 fscanf(finput, "%d ", opndaux.atr.simb->valint);
-                printf("\t\tLido %d", *(opndaux.atr.simb->valint));
+                printf("Lido %d", *(opndaux.atr.simb->valint));
                 break;
             case FLOAT:
                 fscanf(finput, "%g ", opndaux.atr.simb->valfloat);
-                printf("\t\tLido %g", *(opndaux.atr.simb->valfloat));
+                printf("Lido %g", *(opndaux.atr.simb->valfloat));
                 break;
             case LOGICAL:
                 fscanf(finput, "%d ", opndaux.atr.simb->vallogic);
-                printf("\t\tLido %d",*(opndaux.atr.simb->vallogic));
+                printf("Lido %d",*(opndaux.atr.simb->vallogic));
                 break;
             case CHAR:
                 fscanf(finput, "%c ", opndaux.atr.simb->valchar);
-                printf("\t\tLido %c", *(opndaux.atr.simb->valchar));
+                printf("Lido %c", *(opndaux.atr.simb->valchar));
                 break;   
         }
         printf("\n");
