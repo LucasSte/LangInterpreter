@@ -1,0 +1,71 @@
+programa raizes {{{
+
+/*Funcao raiz quadrada*/
+funcao real sqrt(real n)
+
+var{ real(temp, sqrte) }
+comandos{
+	sqrte = n /2;
+	temp = 0;
+	enquanto(sqrte != temp)
+	{
+		temp = sqrte;
+		sqrte = (n/temp + temp)/2;
+	}
+	retornar sqrte;
+}
+
+/*Bhaskara para encontrar zero de equacao*/
+procedimento Bhaskara(int a, int b, int c)
+var {
+	real(discriminante, raiz1, raiz2, realPart, imagPart)
+}
+comandos{
+	discriminante = b*b - 4*a*c;
+	se(discriminante > 0) {
+		raiz1 = (~b + sqrt(discriminante)) / (2*a);
+		raiz2 = (~b - sqrt(discriminante)) / (2*a);
+		escrever("Raizes diferentes: ");
+		escrever(raiz1, " e ");
+		escrever(raiz2, "\n");
+	}
+	senao se (discriminante == 0)
+	{
+		raiz1 = ~b / (2 * a);
+		escrever("Raizes iguais: ");
+		escrever(raiz1, " e ");
+		escrever(raiz1, "\n");
+	}
+	senao
+	{		
+		realPart = ~b / (2*a);
+		imagPart = sqrt(~discriminante) / (2*a);
+		escrever("Raizes complexas: ");
+		escrever(realPart);
+		escrever(" + (");
+		escrever(imagPart);
+		escrever(")i e ");
+		escrever(realPart);
+		escrever(" - (");
+		escrever(imagPart);
+		escrever(")i\n");
+	}
+}
+
+principal
+
+var {int(a, b, c)}
+comandos
+{
+	escrever("Digite os coeficientes a, b e c de ax2+bx+c\n");
+	ler(a);	ler(b);ler(c);
+	repetir
+	{
+		chamar Bhaskara(a, b, c);
+		escrever("Digite os coeficientes a, b e c de ax2+bx+c\n");
+		ler(a);	ler(b);ler(c);
+	}enquanto(a != 0);
+	
+}
+
+}}}

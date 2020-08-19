@@ -1,0 +1,69 @@
+programa MDC {{{
+
+var {
+	int (n[2])
+	carac (c)
+}
+
+procedimento calcular ()
+comandos {
+	se (!(n[0] >= 0)) 
+		n[0] = ~n[0];
+	se (n[1] <= 0) 
+		n[1] = ~n[1];
+	enquanto (n[0] != n[1]) {
+		se (n[0] > n[1]) 
+			n[0] = n[0] - n[1];
+		senao 
+			n[1] = n[1] - n[0];
+	}
+	escrever ("MDC eh ", n[0]);
+	c = 1;
+	se (n[c - 1] % 2 == 0) {
+		escrever ("\nEh par");
+	}
+	senao {
+		escrever ("\nEh impar");
+	}
+}
+
+principal
+comandos {
+	escrever ("Digita dois inteiros:\n");
+	ler (n[0], n[1]);
+	repetir {
+		chamar calcular ();
+		ler (n[0], n[1]);
+	} enquanto (n[0] != 0 && n[1] != 0);
+}
+
+}}}
+
+
+INTERPRETADOR:
+Digita dois inteiros:
+
+		(INTERPRETADOR)Lido 1
+
+		(INTERPRETADOR)Lido 5
+MDC eh 1
+Eh impar
+		(INTERPRETADOR)Lido -30
+
+		(INTERPRETADOR)Lido 80
+MDC eh 10
+Eh par
+		(INTERPRETADOR)Lido 121
+
+		(INTERPRETADOR)Lido 22
+MDC eh 11
+Eh impar
+		(INTERPRETADOR)Lido 87
+
+		(INTERPRETADOR)Lido -65
+MDC eh 1
+Eh impar
+		(INTERPRETADOR)Lido 9
+
+		(INTERPRETADOR)Lido 0
+

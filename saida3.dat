@@ -1,0 +1,22 @@
+programa epsilon {{{
+
+principal
+var {
+	real (eps, prevEpsilon)
+}
+
+comandos {
+	eps = 1.0e-2;
+	repetir {
+		prevEpsilon = eps;
+		eps = eps / 2;
+	} enquanto ((1 + eps) != 1);
+	escrever ("O epsilon de maquina eh:\n", prevEpsilon);
+}
+
+}}}
+
+
+INTERPRETADOR:
+O epsilon de maquina eh:
+7.62939e-008
