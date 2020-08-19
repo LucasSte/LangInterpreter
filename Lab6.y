@@ -404,9 +404,9 @@ Prog       :    PROGRAMA {InicTabSimb();printf("%s ", $1); InicCodIntermed(); pi
                         GeraQuadrupla(OPEXIT, opndidle, opndidle, opndidle);
                 }
                 FTRIP {printf("%s\n", $11);
-                ImprimeNaoUsados();
-                ImprimeTabSimb();
-                ImprimeQuadruplas();
+                //ImprimeNaoUsados();
+                //ImprimeTabSimb();
+                //ImprimeQuadruplas();
                 InterpCodIntermed();
                 }
                 ;
