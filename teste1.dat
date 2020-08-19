@@ -1,0 +1,65 @@
+programa busca {{{
+var {
+	carac(vector[10])
+}
+
+
+funcao int achar(int n, carac c)
+var { logic(termino) int (i, j)
+}
+comandos{
+	termino = falso;
+	i = 0;
+	
+	j = ~1;
+	
+	enquanto(i < n && !termino)
+	{		
+		se(vector[i] == c) {
+			termino = verdade;
+			j = i;
+		} 
+		senao
+			termino = falso;
+		i = i+1;
+	}
+	retornar j;
+}
+
+
+/* Modulo principal */
+
+principal
+var { carac (lido) int (n, aux)
+}
+
+comandos
+{
+	escrever("Digita o tamanho do vetor\n");
+	ler(aux);
+	para n(0; n <= aux; n+1)
+	{
+		ler(lido);
+		vector[n] = lido;
+	}
+
+	escrever("Digita um carater a ser procurado\n");
+	ler(lido);
+
+	repetir{
+		
+		aux = achar(aux, lido);
+
+		se(aux != ~1) {
+			escrever("achei\n");
+		}
+		senao {
+			escrever("nao achei\n");
+		}
+
+		escrever("Digita um carater a ser procurado\n");
+		ler(lido);
+	} enquanto(lido != '$');
+}
+
+}}}
