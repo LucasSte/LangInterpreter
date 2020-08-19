@@ -251,7 +251,7 @@ void TestaCompatibilidade(int param, int arg);
 void tabular();
 void jumpLines();
 void isRepeat();
-void Indentar();
+//void Indentar();
 
 void ImprimeQuadruplas(void);
 void InicCodIntermed();
@@ -1975,8 +1975,8 @@ void InterpCodIntermedSubProgramas()
     
     while(!encerra)
     {
-        Indentar();
-        printf("%4d)%s", quad->num, nomeoperquad[quad->oper]);
+        //Indentar();
+        //printf("%4d)%s", quad->num, nomeoperquad[quad->oper]);
         quadprox = quad->prox;
         switch(quad->oper)
         {
@@ -2205,8 +2205,8 @@ void AlocaVariaveis(quadrupla quad)
 {
     simbolo s;
     int nelemaloc, i, j;
-    Indentar();
-    printf("\tAlocando as variaveis:");
+    //Indentar();
+    //printf("\tAlocando as variaveis:");
     for(i=0; i < NCLASSHASH; i++)
     {
         if(tabsimb[i])
@@ -2240,8 +2240,8 @@ void AlocaVariaveis(quadrupla quad)
                                 s->vallogic = malloc(nelemaloc * sizeof(char));
                             break;
                     }
-                    Indentar();
-                    printf("\t\t\t%s: %d elemento(s) alocado(s)", s->cadeia, nelemaloc);
+                    //Indentar();
+                    //printf("\t\t\t%s: %d elemento(s) alocado(s)", s->cadeia, nelemaloc);
                 }
             }
         }
@@ -3543,7 +3543,7 @@ void ExecQuadAtribpont(quadrupla quad)
 
 }
 
-void Indentar()
+/*void Indentar()
 {
     printf("\n");
     int i;
@@ -3551,4 +3551,4 @@ void Indentar()
     {
         printf("\t");
     }
-}
+}*/
