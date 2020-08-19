@@ -1573,7 +1573,6 @@ void InsereParametro(simbolo modulo, simbolo param)
         modulo->listparamc->simb = param;
         modulo->listparamc->prox = NULL;
         modulo->listparamf = modulo->listparamc;
-        printf("\nInserido - %s em %s -- end = %d\n", modulo->cadeia, param->cadeia, modulo->listparamc);
     }
     else
     {
@@ -2080,7 +2079,6 @@ void InterpCodIntermedSubProgramas()
                                     break;
                             }
                     }
-    
                     switch(ctx.quadruplaAtual->result.atr.simb->tvar)
                     {
                         case INTEGER:
@@ -2102,9 +2100,9 @@ void InterpCodIntermedSubProgramas()
                             if(tipo == INTOPND)
                                 *(ctx.quadruplaAtual->result.atr.simb->valfloat) = valint;
                             else if(tipo == REALOPND)
-                                *(ctx.quadruplaAtual->result.atr.simb->valchar) = valfloat;
+                                *(ctx.quadruplaAtual->result.atr.simb->valfloat) = valfloat;
                             else if(tipo == CHAROPND)
-                                *(ctx.quadruplaAtual->result.atr.simb->valchar) = valchar;
+                                *(ctx.quadruplaAtual->result.atr.simb->valfloat) = valchar;
                             break;
                     }
                 }
