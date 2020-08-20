@@ -191,6 +191,7 @@ typedef struct contexto contexto;
 struct contexto{
     modhead moduloAtual;
     quadrupla quadruplaAtual;
+    simbolo chamado;
 };
 
 typedef struct nohcontexto nohcontexto;
@@ -313,6 +314,7 @@ simbolo atual;
 void InterpCodIntermed(void);
 void InterpCodIntermedSubProgramas(void);
 void AlocaVariaveis(quadrupla quad);
+void DesalocaVariaveis(simbolo modulo);
 void ImprimeCadeia(char * cadeia);
 %}
 %union {
@@ -1970,6 +1972,7 @@ void InterpCodIntermedSubProgramas()
     char encerra;
     char condicao;
     contexto ctx;
+    simbolo moduloChamado = NULL;
     encerra = FALSE;
     quad = codintermedaux->listquad->prox;
     
@@ -2026,9 +2029,10 @@ void InterpCodIntermedSubProgramas()
             
             case CALLOP:
                 tab++;
-                ctx = (contexto){codintermedaux, quad};    
+                ctx = (contexto){codintermedaux, quad, moduloChamado};    
                 EmpilharContexto(ctx,&pilhacontext);
                 ExecQuadCallop(quad);
+                moduloChamado = quad->opnd1.atr.simb;
                 quadprox = codintermedaux->listquad->prox;
                 break;
             
@@ -2106,8 +2110,10 @@ void InterpCodIntermedSubProgramas()
                             break;
                     }
                 }
+                DesalocaVariaveis(moduloChamado);
                 codintermedaux = ctx.moduloAtual;
                 quadprox = ctx.quadruplaAtual->prox;
+                moduloChamado = ctx.chamado;
                 DesempilharContexto(&pilhacontext);
                 break;
 
@@ -3541,6 +3547,70 @@ void ExecQuadAtribpont(quadrupla quad)
         break;
     }
 
+}
+
+void DesalocaVariaveis(simbolo modulo)
+{
+    simbolo s;
+    int nelemaloc, i, j;
+    for(i=0; i < NCLASSHASH; i++)
+    {
+        if(tabsimb[i])
+        {
+            for(s = tabsimb[i]; s != NULL; s = s->prox)
+            {
+                if(s->escopo == modulo && s->tid == IDVAR)
+                {
+                    switch(s->tvar)
+                    {
+                        case INTEGER:
+                            if(s->valint != NULL)
+                            {
+                                free(s->valint);
+                                s->valint = NULL;
+                            }
+                            break;
+                        case FLOAT:
+                            if(s->valfloat != NULL)
+                            {
+                                free(s->valfloat);
+                                s->valfloat = NULL;
+                            }
+                            break;
+                        case CHAR:
+                            if(s->valchar != NULL)
+                            {
+                                free(s->valchar);
+                                s->valchar = NULL;
+                            }
+                                
+                            break;
+                        case LOGICAL:
+                            if(s->vallogic != NULL)
+                            {
+                                free(s->vallogic);
+                                s->vallogic = NULL;
+
+                            }
+                            break;
+                        case PTRINT:
+                            s->valint = NULL;
+                            break;
+                        case PTRFLOAT:
+                            s->valfloat = NULL;
+                            break;
+                        case PTRCHAR:
+                            s->valchar = NULL;
+                            break;
+                        case PTRLOG:
+                            s->vallogic = NULL;
+                            break;
+                    }
+                
+                }
+            }
+        }
+    }
 }
 
 /*void Indentar()
